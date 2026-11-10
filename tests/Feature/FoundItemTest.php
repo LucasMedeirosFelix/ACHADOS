@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\FoundItem;
+use App\Models\ItemRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -12,11 +13,11 @@ class FoundItemTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_found_item_can_be_created_with_a_photo(): void
+    public function test_an_admin_can_create_a_found_item_with_a_photo(): void
     {
         Storage::fake('public');
 
-        $response = $this->post(route('found-items.store'), [
+        $response = $this->post(route('admin.found-items.store'), [
             'name' => 'Chaveiro azul',
             'description' => 'Encontrado perto da biblioteca, ao lado da entrada.',
             'found_at' => now()->toDateString(),
@@ -24,7 +25,7 @@ class FoundItemTest extends TestCase
             'photo' => UploadedFile::fake()->create('chaveiro.jpg', 10, 'image/jpeg'),
         ]);
 
-        $response->assertRedirect(route('found-items.index'));
+        $response->assertRedirect(route('admin.found-items.index'));
         $this->assertDatabaseHas('found_items', [
             'name' => 'Chaveiro azul',
             'description' => 'Encontrado perto da biblioteca, ao lado da entrada.',
@@ -35,7 +36,7 @@ class FoundItemTest extends TestCase
         Storage::disk('public')->assertExists($item->image_path);
     }
 
-    public function test_a_found_item_can_be_deleted_with_its_photo(): void
+    public function test_an_admin_can_edit_a_found_item_without_replacing_its_photo(): void
     {
         Storage::fake('public');
         $imagePath = 'found-items/chaveiro.jpg';
@@ -48,14 +49,107 @@ class FoundItemTest extends TestCase
             'image_path' => $imagePath,
         ]);
 
+        $this->get(route('admin.found-items.edit', $item))
+            ->assertOk()
+            ->assertSeeText('Editar item');
+
+        $response = $this->put(route('admin.found-items.update', $item), [
+            'name' => 'Chaveiro azul atualizado',
+            'description' => 'Encontrado perto da biblioteca, na entrada.',
+            'found_at' => now()->toDateString(),
+            'location' => 'Biblioteca',
+        ]);
+
+        $response->assertRedirect(route('admin.found-items.index'));
+        $this->assertDatabaseHas('found_items', [
+            'id' => $item->id,
+            'name' => 'Chaveiro azul atualizado',
+            'image_path' => $imagePath,
+        ]);
+        Storage::disk('public')->assertExists($imagePath);
+    }
+
+    public function test_a_student_can_request_a_found_item(): void
+    {
+        $item = FoundItem::create([
+            'name' => 'Chaveiro azul',
+            'description' => 'Encontrado perto da biblioteca.',
+            'found_at' => now()->toDateString(),
+            'location' => 'Biblioteca',
+            'image_path' => 'found-items/chaveiro.jpg',
+        ]);
+
         $this->get(route('found-items.index'))
             ->assertOk()
-            ->assertSeeText('Excluir item');
+            ->assertSeeText('Itens encontrados')
+            ->assertDontSeeText('Excluir item');
 
-        $response = $this->delete(route('found-items.destroy', $item));
+        $response = $this->post(route('item-requests.store', $item), [
+            'student_name' => 'Ana Souza',
+            'email' => 'ana@example.com',
+            'message' => 'O chaveiro tem uma fita vermelha que reconheço.',
+        ]);
 
         $response->assertRedirect(route('found-items.index'));
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('item_requests', [
+            'found_item_id' => $item->id,
+            'student_name' => 'Ana Souza',
+            'email' => 'ana@example.com',
+            'status' => 'pending',
+        ]);
+    }
+
+    public function test_a_request_requires_a_valid_email(): void
+    {
+        $item = FoundItem::create([
+            'name' => 'Chaveiro azul',
+            'description' => 'Encontrado perto da biblioteca.',
+            'found_at' => now()->toDateString(),
+            'location' => 'Biblioteca',
+            'image_path' => 'found-items/chaveiro.jpg',
+        ]);
+
+        $this->from(route('found-items.index'))
+            ->post(route('item-requests.store', $item), [
+                'student_name' => 'Ana Souza',
+                'email' => 'email-invalido',
+                'message' => 'Acredito que este objeto seja meu.',
+            ])
+            ->assertRedirect(route('found-items.index'))
+            ->assertSessionHasErrors('email');
+
+        $this->assertDatabaseCount('item_requests', 0);
+    }
+
+    public function test_an_admin_can_delete_a_found_item_and_its_photo(): void
+    {
+        Storage::fake('public');
+        $imagePath = 'found-items/chaveiro.jpg';
+        Storage::disk('public')->put($imagePath, 'fake image');
+        $item = FoundItem::create([
+            'name' => 'Chaveiro azul',
+            'description' => 'Encontrado perto da biblioteca.',
+            'found_at' => now()->toDateString(),
+            'location' => 'Biblioteca',
+            'image_path' => $imagePath,
+        ]);
+        ItemRequest::create([
+            'found_item_id' => $item->id,
+            'student_name' => 'Ana Souza',
+            'email' => 'ana@example.com',
+            'message' => 'Acredito que este objeto seja meu.',
+        ]);
+
+        $this->get(route('admin.found-items.index'))
+            ->assertOk()
+            ->assertSeeText('Ana Souza');
+
+        $response = $this->delete(route('admin.found-items.destroy', $item));
+
+        $response->assertRedirect(route('admin.found-items.index'));
         $this->assertDatabaseMissing('found_items', ['id' => $item->id]);
+        $this->assertDatabaseMissing('item_requests', ['found_item_id' => $item->id]);
         Storage::disk('public')->assertMissing($imagePath);
     }
 }
