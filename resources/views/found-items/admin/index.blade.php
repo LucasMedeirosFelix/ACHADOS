@@ -18,6 +18,9 @@
         .brand-name { display: block; font-size: 14px; font-weight: 700; }
         .brand-caption { display: block; margin-top: 2px; color: #c6c6d3; font-size: 11px; }
         .board-link { min-height: 38px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid #77788a; border-radius: 3px; color: white; text-decoration: none; font-size: 12px; font-weight: 600; }
+        .topbar-actions { display: flex; align-items: center; gap: 10px; }
+        .account-link, .logout-button { min-height: 38px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid #77788a; border-radius: 3px; background: transparent; color: white; text-decoration: none; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .account-link:hover, .logout-button:hover { border-color: white; background: #ffffff12; }
         main { width: min(1240px, calc(100% - 56px)); margin: 0 auto; padding: 36px 0 60px; }
         .page-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
         .eyebrow { margin: 0 0 7px; color: #61458f; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
@@ -79,7 +82,7 @@
         .pagination nav { display: flex; justify-content: center; }
         footer { padding: 18px; border-top: 1px solid var(--line); color: #839087; text-align: center; font-size: 10px; }
         @media (min-width: 980px) { .two-fields { grid-template-columns: 1fr 1fr; } .form-panel { position: sticky; top: 16px; } }
-        @media (max-width: 720px) { .topbar { padding: 11px 16px; } main { width: calc(100% - 32px); padding-top: 26px; } .page-head { align-items: start; flex-direction: column; } .metrics { width: 100%; } .metric { flex: 1; } .workspace { grid-template-columns: 1fr; } .form-panel { position: static; } }
+        @media (max-width: 720px) { .topbar { padding: 11px 16px; flex-wrap: wrap; } .topbar-actions { width: 100%; justify-content: flex-end; } main { width: calc(100% - 32px); padding-top: 26px; } .page-head { align-items: start; flex-direction: column; } .metrics { width: 100%; } .metric { flex: 1; } .workspace { grid-template-columns: 1fr; } .form-panel { position: static; } }
         @media (max-width: 480px) { .item-row { grid-template-columns: 82px minmax(0, 1fr); } .item-photo { width: 82px; min-height: 130px; } .item-topline { flex-direction: column; } .actions { width: 100%; } .edit-link, .delete-button { flex: 1; } h1 { font-size: 31px; } }
     </style>
 </head>
@@ -89,7 +92,14 @@
             <span class="brand-mark" aria-hidden="true">A</span>
             <span><span class="brand-name">Achados e Perdidos Bradesco</span><span class="brand-caption">painel de administração</span></span>
         </a>
-        <a class="board-link" href="{{ route('found-items.index') }}">Ver mural dos alunos</a>
+        <nav class="topbar-actions" aria-label="Navegação administrativa">
+            <a class="account-link" href="{{ route('admin.account.edit') }}">Minha conta</a>
+            <a class="board-link" href="{{ route('found-items.index') }}">Ver mural dos alunos</a>
+            <form action="{{ route('admin.logout') }}" method="post">
+                @csrf
+                <button class="logout-button" type="submit">Sair</button>
+            </form>
+        </nav>
     </header>
 
     <main>
@@ -152,6 +162,7 @@
                                         <div class="request-entry">
                                             <strong>{{ $itemRequest->student_name }}</strong>
                                             <a href="mailto:{{ $itemRequest->email }}">{{ $itemRequest->email }}</a>
+                                            <p>Número de contato: {{ $itemRequest->contact_number }}</p>
                                             <p>{{ $itemRequest->message }}</p>
                                             <time datetime="{{ $itemRequest->created_at->toDateString() }}">Recebida em {{ $itemRequest->created_at->format('d/m/Y H:i') }}</time>
                                         </div>

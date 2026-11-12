@@ -13,6 +13,7 @@ class ItemRequestController extends Controller
         $validated = $request->validate([
             'student_name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255'],
+            'contact_number' => ['required', 'string', 'max:30'],
             'message' => ['required', 'string', 'max:1500'],
         ]);
 

@@ -73,7 +73,7 @@
             <span class="brand-mark" aria-hidden="true">A</span>
             <span><span class="brand-name">Achados e Perdidos Bradesco</span><span class="brand-caption">mural da comunidade</span></span>
         </a>
-        <a class="admin-link" href="{{ route('admin.found-items.index') }}">Administração</a>
+        <a class="admin-link" href="{{ route('login') }}">Administração</a>
     </header>
 
     <main>
@@ -125,6 +125,11 @@
                                         <label for="email_{{ $item->id }}">E-mail para contato</label>
                                         <input id="email_{{ $item->id }}" name="email" type="email" maxlength="255" value="{{ old('email') }}" autocomplete="email" required>
                                         @error('email')<p class="error">{{ $message }}</p>@enderror
+                                    </div>
+                                    <div>
+                                        <label for="contact_number_{{ $item->id }}">Número de contato</label>
+                                        <input id="contact_number_{{ $item->id }}" name="contact_number" type="tel" maxlength="30" value="{{ old('contact_number') }}" autocomplete="tel" required>
+                                        @error('contact_number')<p class="error">{{ $message }}</p>@enderror
                                     </div>
                                     <div>
                                         <label for="message_{{ $item->id }}">Como você reconheceu o item?</label>
