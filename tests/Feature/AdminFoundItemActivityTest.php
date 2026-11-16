@@ -20,6 +20,50 @@ class AdminFoundItemActivityTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
+    public function test_guest_cannot_delete_an_item_activity(): void
+    {
+        $activity = FoundItemActivity::create([
+            'found_item_id' => 101,
+            'action' => 'created',
+            'item_name' => 'Chaveiro azul',
+            'snapshot' => ['name' => 'Chaveiro azul'],
+        ]);
+
+        $this->delete(route('admin.found-item-activities.destroy', $activity))
+            ->assertRedirect(route('login'));
+
+        $this->assertDatabaseHas('found_item_activities', ['id' => $activity->id]);
+    }
+
+    public function test_admin_can_delete_one_activity_without_deleting_other_records(): void
+    {
+        $this->actingAs(User::factory()->create(['username' => 'admin']));
+        $firstActivity = FoundItemActivity::create([
+            'found_item_id' => 101,
+            'action' => 'created',
+            'item_name' => 'Chaveiro azul',
+            'snapshot' => ['name' => 'Chaveiro azul'],
+        ]);
+        $secondActivity = FoundItemActivity::create([
+            'found_item_id' => 102,
+            'action' => 'updated',
+            'item_name' => 'Mochila preta',
+            'snapshot' => ['name' => 'Mochila preta'],
+        ]);
+
+        $this->get(route('admin.found-item-activities.index'))
+            ->assertOk()
+            ->assertSeeText('Excluir registro');
+
+        $this->delete(route('admin.found-item-activities.destroy', $firstActivity))
+            ->assertRedirect(route('admin.found-item-activities.index'))
+            ->assertSessionHas('success', 'Registro do histórico excluído.');
+
+        $this->assertDatabaseMissing('found_item_activities', ['id' => $firstActivity->id]);
+        $this->assertDatabaseHas('found_item_activities', ['id' => $secondActivity->id]);
+        $this->assertDatabaseCount('found_item_activities', 1);
+    }
+
     public function test_admin_can_review_item_activity_and_manage_active_items(): void
     {
         Storage::fake('public');

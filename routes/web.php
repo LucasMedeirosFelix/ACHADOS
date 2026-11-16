@@ -21,6 +21,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function (): v
     Route::get('/conta', [AdminAccountController::class, 'edit'])->name('account.edit');
     Route::put('/conta', [AdminAccountController::class, 'update'])->name('account.update');
     Route::get('/historico', [AdminFoundItemActivityController::class, 'index'])->name('found-item-activities.index');
+    Route::delete('/historico/{activity}', [AdminFoundItemActivityController::class, 'destroy'])->name('found-item-activities.destroy');
     Route::get('/itens', [AdminFoundItemController::class, 'index'])->name('found-items.index');
     Route::post('/itens', [AdminFoundItemController::class, 'store'])->name('found-items.store');
     Route::get('/itens/{item}/editar', [AdminFoundItemController::class, 'edit'])->name('found-items.edit');

@@ -27,6 +27,7 @@
         h1 { margin-bottom: 5px; font-family: 'DM Serif Display', Georgia, serif; font-size: 36px; font-weight: 400; }
         .subtitle { margin: 0; color: var(--muted); font-size: 13px; }
         .count { padding: 10px 13px; border: 1px solid var(--line); border-radius: 4px; background: white; color: var(--muted); font-size: 11px; white-space: nowrap; }
+        .success { margin-bottom: 16px; padding: 11px 14px; border: 1px solid #b9d1c1; border-radius: 3px; background: #e9f2e9; color: #275b40; font-size: 13px; }
         .activity-list { display: grid; gap: 10px; }
         .activity { display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; align-items: start; gap: 17px; padding: 17px; border: 1px solid var(--line); border-radius: 4px; background: white; }
         .event { display: inline-flex; width: fit-content; min-height: 26px; align-items: center; padding: 0 9px; border-radius: 3px; font-size: 10px; font-weight: 700; }
@@ -84,6 +85,10 @@
             <div class="count">{{ $activities->total() }} registros</div>
         </section>
 
+        @if (session('success'))
+            <div class="success" role="status">{{ session('success') }}</div>
+        @endif
+
         <section class="activity-list" aria-label="Registros de atividade">
             @forelse ($activities as $activity)
                 @php
@@ -111,16 +116,21 @@
                             </div>
                         @endif
                     </div>
-                    @if ($activity->foundItem)
-                        <div class="actions">
+                    <div class="actions">
+                        @if ($activity->foundItem)
                             <a class="action-link" href="{{ route('admin.found-items.edit', $activity->foundItem) }}">Editar item</a>
                             <form action="{{ route('admin.found-items.destroy', $activity->foundItem) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este item?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="delete-button" type="submit">Excluir</button>
                             </form>
-                        </div>
-                    @endif
+                        @endif
+                        <form action="{{ route('admin.found-item-activities.destroy', $activity) }}" method="post" onsubmit="return confirm('Excluir somente este registro do histórico? O item não será alterado.')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="delete-button" type="submit">Excluir registro</button>
+                        </form>
+                    </div>
                 </article>
             @empty
                 <div class="empty">
