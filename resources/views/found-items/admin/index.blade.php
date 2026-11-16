@@ -94,6 +94,7 @@
         </a>
         <nav class="topbar-actions" aria-label="Navegação administrativa">
             <a class="account-link" href="{{ route('admin.account.edit') }}">Minha conta</a>
+            <a class="account-link" href="{{ route('admin.found-item-activities.index') }}">Histórico</a>
             <a class="board-link" href="{{ route('found-items.index') }}">Ver mural dos alunos</a>
             <form action="{{ route('admin.logout') }}" method="post">
                 @csrf

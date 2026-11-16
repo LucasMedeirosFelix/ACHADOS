@@ -20,4 +20,9 @@ class FoundItem extends Model
     {
         return $this->hasMany(ItemRequest::class);
     }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(FoundItemActivity::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAccountController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminFoundItemActivityController;
 use App\Http\Controllers\AdminFoundItemController;
 use App\Http\Controllers\FoundItemController;
 use App\Http\Controllers\ItemRequestController;
@@ -19,6 +20,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function (): v
     Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
     Route::get('/conta', [AdminAccountController::class, 'edit'])->name('account.edit');
     Route::put('/conta', [AdminAccountController::class, 'update'])->name('account.update');
+    Route::get('/historico', [AdminFoundItemActivityController::class, 'index'])->name('found-item-activities.index');
     Route::get('/itens', [AdminFoundItemController::class, 'index'])->name('found-items.index');
     Route::post('/itens', [AdminFoundItemController::class, 'store'])->name('found-items.store');
     Route::get('/itens/{item}/editar', [AdminFoundItemController::class, 'edit'])->name('found-items.edit');
