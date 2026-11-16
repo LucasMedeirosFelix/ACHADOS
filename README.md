@@ -7,6 +7,29 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Configuração local
+
+Com MySQL, PHP com `pdo_mysql`, Composer, Node.js e npm instalados, copie
+`.env.example` para `.env` e configure `DB_HOST`, `DB_PORT`, `DB_DATABASE`,
+`DB_USERNAME` e `DB_PASSWORD`. (Se `.env` não existir, o setup o copia
+automaticamente, mas usará os valores padrão.) Crie o banco configurado no MySQL,
+por exemplo, no console do MySQL:
+
+```bash
+CREATE DATABASE achados2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Depois, na raiz do projeto, execute:
+
+```bash
+composer run setup
+```
+
+O comando instala as dependências, cria o `.env` a partir de `.env.example` se
+necessário, executa as migrações e cria a conta administrativa. Para o primeiro
+acesso, use `admin` / `admin` em `/admin/login`. Altere `ADMIN_DEFAULT_PASSWORD` no
+`.env` antes de disponibilizar a aplicação publicamente.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
