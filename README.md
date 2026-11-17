@@ -26,9 +26,10 @@ composer run setup
 ```
 
 O comando instala as dependências, cria o `.env` a partir de `.env.example` se
-necessário, executa as migrações e cria a conta administrativa. Para o primeiro
-acesso, use `admin` / `admin` em `/admin/login`. Altere `ADMIN_DEFAULT_PASSWORD` no
-`.env` antes de disponibilizar a aplicação publicamente.
+necessário, executa as migrações, cria a conta administrativa e configura o link
+`public/storage` necessário para exibir as fotos enviadas. Para o primeiro acesso,
+use `admin` / `admin` em `/admin/login`. Altere `ADMIN_DEFAULT_PASSWORD` no `.env`
+antes de disponibilizar a aplicação publicamente.
 
 ## About Laravel
 
